@@ -46,7 +46,10 @@ def A_Asterics(maze, start, goal):
     
     open_list = []
     closed_list = []
-    
+
+    possibilities = {}
+    counter = 1
+
     open_list.append(start_node)
     
     successors = [(0,1),(0,-1),(-1,0),(-1,-1),(-1,1),(1,-1),(1,0),(1,1)] #middle, top, bottom
@@ -73,13 +76,14 @@ def A_Asterics(maze, start, goal):
             while current is not None:
                 path.append(current.position)
                 current = current.parent
-            return path[::-1]
+            return path[::-1], possibilities
 
         children = []
+        possibilities[counter] =[] 
         for square in successors:
             x_c, y_c = square
             node_position = (current_node.position[0] + x_c, current_node.position[1] + y_c)
-
+            
             # barricaden
             if maze[node_position[0]][node_position[1]] != 0: #vorher 1
                 continue
@@ -89,9 +93,11 @@ def A_Asterics(maze, start, goal):
             
             new_node = Node(current_node, node_position)
             children.append(new_node)
-    
+
+            possibilities[counter].append(new_node.position)
+
         for child in children:
-            # Child is on the closed list
+             # Child is on the closed list
             for closed_child in closed_list:
                 if child == closed_child:
                     break
@@ -99,7 +105,7 @@ def A_Asterics(maze, start, goal):
                 # Create the f, g, and h values
                 child.g = current_node.g + 1
                 # H: Manhattan distance to end point
-                child.h = abs(child.position[0] - goal_node.position[0]) + abs(child.position[1] - goal_node.position[1])
+                child.h = abs(child.position[0] - goal_node.position[0]) + abs(child.position[1] - goal_node.position[1]) #Manhatten Distance because the euclidean is not the best choise. Eucliden goes diagonal
                 child.f = child.g + child.h
         
                 # Child is already in the open list
@@ -112,5 +118,11 @@ def A_Asterics(maze, start, goal):
                     # Add the child to the open list
                     open_list.append(child)
 
-path = A_Asterics(maze,start,goal)
-print("The result is", path)
+            # possibilities[current_node.position] = child.position
+        counter += 1
+
+
+# path, children = A_Asterics(maze,start,goal)
+
+# print("The result is", path)
+# print("The result is", children)
